@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Diffusion-based Efficient Inverse Procedural Content Generation for High-quality 3D Asset Creation">
+  <meta name="keywords" content="DI-PCG, Procedural Content Generation, Image-to-3D, Diffusion Model">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DI-PCG: Diffusion-based Efficient Inverse Procedural Content Generation for High-quality 3D Asset Creation</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <!-- <link rel="icon" href="./static/images/favicon.svg"> -->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+
+  <script>
+
+    $(function () {
+      var includes = $('[data-include]')
+      $.each(includes, function () {
+        var file = $(this).data('include') + '.html'
+        $(this).load(file)
+        console.log(file);
+      })
+    })
+
+  </script>
+
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.156.1/build/three.module.js",
+        "three/controls/OrbitControls": "https://unpkg.com/three@0.156.1/examples/jsm/controls/OrbitControls.js",
+        "three/libs/stats": "https://unpkg.com/three@0.156.1/examples/jsm/libs/stats.module.js"
+      }
+    }
+  </script>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
+  <style>
+    model-viewer {
+      width: 300px;
+      height: 300px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            
+            <h1 class="title is-1 publication-title">DI-PCG: Diffusion-based Efficient Inverse Procedural Content Generation for High-quality 3D Asset Creation</h1>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                  <span class="author-block"> <a href="https://thuzhaowang.github.io/" target="_blank">Wang Zhao</a><sup>1</sup>,</span>
+                  <span class="author-block"> <a href="https://yanpei.me/" target="_blank">Yan-Pei Cao</a><sup>2</sup>,</span>
+                  <span class="author-block"> <a href="https://bluestyle97.github.io/" target="_blank">Jiale Xu</a><sup>1</sup>,</span>
+                  <span class="author-block"> <a href="https://scholar.google.com.hk/citations?user=0i7bPj8AAAAJ&hl=zh-CN" target="_blank">Yuejiang Dong</a><sup>1,3</sup>,</span>
+                  <span class="author-block"> <a href="https://www.linkedin.com/in/YingShanProfile/" target="_blank">Ying Shan</a><sup>1</sup></span>
+              </span>
+
+              <br>
+              <span class="author-block">
+                    <span class="author-block"><sup>1</sup>ARC Lab, Tencent PCG &nbsp;&nbsp;</span>
+                    <span class="author-block"><sup>2</sup>VAST &nbsp;&nbsp;</span>
+                    <span class="author-block"><sup>3</sup>Tsinghua University &nbsp;&nbsp;</span>
+              </span>
+
+              <div class="column has-text-centered">
+                <div class="publication-links">
+                  <!-- PDF Link. -->
+                  <span class="link-block">
+                    <a
+                      href="https://arxiv.org/abs/"
+                      target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fas fa-file-pdf"></i>
+                      </span>
+                      <span>Paper</span>
+                    </a>
+                  </span>
+                  <!-- Code Link. -->
+                  <span class="link-block">
+                    <a
+                      href="https://github.com/TencentARC/DI-PCG"
+                      target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fab fa-github"></i>
+                      </span>
+                      <span>Code</span>
+                    </a>
+                  </span>
+                  <!-- Model Link. -->
+                  <span class="link-block">
+                    <a
+                      href="https://huggingface.co/TencentARC/DI-PCG"
+                      target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fa fa-database"></i>
+                      </span>
+                      <span>Model</span>
+                    </a>
+                  </span>
+                  <!-- Demo Link. -->
+                  <span class="link-block">
+                    <a
+                      href="https://huggingface.co/spaces/TencentARC/DI-PCG"
+                      target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">&#129303;</span>
+                      <span>Demo</span>
+                    </a>
+                  </span>
+                </div>
+              </div>
+              <div class="is-size-5 publication-authors">
+                <hr
+                  style="
+                    width: 100%;
+                    height: 0.7px;
+                    background-color: rgba(0, 0, 0, 0.665);
+                    margin-top: 1em;
+                  " />
+                
+              </div>
+              <br/>
+              <!-- Teaser -->
+              <div class="columns is-1 is-multiline is-mobile">
+                <img src="./assets/teaser.png" alt="Teaser" style="width:100%">
+                Given condition images, DI-PCG can accurately estimate suitable parameters of procedural generators, resulting high fidelity 3D asset creation. Textures and materials are randomly assigned by the procedural generators for visualizations.
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Procedural Content Generation (PCG) is powerful in creating high-quality 3D contents, yet controlling it to produce desired shapes is difficult and often requires extensive parameter tuning. Inverse Procedural Content Generation aims to automatically find the best parameters under the input condition. However, existing sampling-based and neural network-based methods still suffer from numerous sample iterations or limited controllability. In this work, we present DI-PCG, a novel and efficient method for Inverse PCG from general image conditions. At its core is a lightweight diffusion transformer model, where PCG parameters are directly treated as the denoising target and the observed images as conditions to control parameter generation. DI-PCG is efficient and effective. With only 7.6M network parameters and 30 GPU hours to train, it demonstrates superior performance in recovering parameters accurately, and generalizing well to in-the-wild images. Quantitative and qualitative experiment results validate the effectiveness of DI-PCG in inverse PCG and image-to-3D generation tasks. DI-PCG offers a promising approach for efficient inverse PCG and represents a valuable exploration step towards a 3D generation path that models how to construct a 3D asset using parametric models.
+              <br><br>
+            </p>
+          </div>
+          </object>
+        </div>
+      </div>
+      
+      <img src="./assets/pipeline.png" alt="pipeline">
+      <p><strong>Pipeline.</strong> Overview of DI-PCG. (Left) The procedural generator consists of programs and parameters, and can be randomly sampled to produce various shapes. (Right) To control it with images, DI-PCG trains a denoising diffusion model directly upon canonicalized generator parameters, using DINOv2 to extract condition image features and inject them via cross attention. The resulting parameters are projected back to original ranges and then fed into the generator, delivering high-quality 3D generation with neat geometry and meshing.
+      </p>
+    </div>
+  </section>
+
+
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">
+        <center>Image Conditioned 3D Generation</center>
+      </h2>
+      <!-- <h4 class="subtitle is-4">
+        <center><a href="./page_gso.html">(Click to see more results)</a></center>
+      </h4> -->
+      <div class="hero-body">
+
+        <!-- Chair-1:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/chair_001.png" alt="chair_001" style="width:70%;padding:15% 0px 15% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/chair_001.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/chair_020.png" alt="chair_020" style="width:90%;padding:5% 0px 5% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/chair_020.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Chair-2:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/chair_2_002.png" alt="chair_001" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/chair_2_002.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/chair_2_006.png" alt="chair_020" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/chair_2_006.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Table-1:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/table_002.png" alt="table_002" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/table_002.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/table_003.png" alt="table_003" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/table_003.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Table-2:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/table_005.png" alt="table_005" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/table_005.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/table_015.png" alt="table_015" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/table_015.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Vase-1:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/vase_001.png" alt="vase_001" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/vase_001.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/vase_004.png" alt="vase_004" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/vase_004.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Vase-2:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/vase_010.png" alt="vase_010" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/vase_010.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/vase_012.png" alt="vase_012" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/vase_012.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Basket-1:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/basket_006.png" alt="basket_006" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/basket_006.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/basket_009.png" alt="basket_009" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/basket_009.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Flower-1:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/flower_003.png" alt="flower_003" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/flower_003.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/flower_006.png" alt="flower_006" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/flower_006.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Dandelion-1:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/dandelion_001.png" alt="dandelion_001" style="width:80%;padding:10% 0px 10% 0px">
+              <br>
+              Input Image
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/dandelion_001.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+              Generation
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./image2pcg/dandelion_005.png" alt="dandelion_005" style="width:80%;padding:10% 0px 10% 0px">
+              <br>
+              Input Image
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./image2pcg/dandelion_005.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+              Generation
+            </div>
+          </div>
+        </div>
+
+      </div>
+  </section>
+
+
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">
+        <center>Sketch Conditioned Generation</center>
+      </h2>
+      <div class="hero-body">
+
+        <!-- Sketch-1:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./sketch2pcg/chair_sketch_004.png" alt="chair_sketch_004" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./sketch2pcg/chair_sketch_004.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./sketch2pcg/table_sketch_004.png" alt="table_sketch_004" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./sketch2pcg/table_sketch_004.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Sketch-2:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./sketch2pcg/vase_sketch_004.png" alt="vase_sketch_004" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./sketch2pcg/vase_sketch_004.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./sketch2pcg/basket_sketch_004.png" alt="basket_sketch_004" style="width:80%;padding:10% 0px 10% 0px">
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./sketch2pcg/basket_sketch_004.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Sketch-3:  -->
+        <div class="columns is-1 is-multiline is-mobile">
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./sketch2pcg/flower_005.png" alt="flower_005" style="width:80%;padding:10% 0px 10% 0px">
+              <br>
+              Input Image
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./sketch2pcg/flower_005.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+              Generation
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <div style="text-align: center;">
+              <img src="./sketch2pcg/dandelion_009.png" alt="dandelion_009" style="width:80%;padding:10% 0px 10% 0px">
+              <br>
+              Input Image
+            </div>
+          </div>
+
+          <div class="column pb-0 mb-0 is-one-fourth">
+            <video id="teaser" autoplay muted loop playsinline controls  height="100%">
+              <source src="./sketch2pcg/dandelion_009.mp4" type="video/mp4">
+            </video>
+            <div style="text-align: center;">
+              Generation
+            </div>
+          </div>
+        </div>
+
+      </div>
+  </section>
+
+
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">
+        <center>Comparison</center>
+      </h2>
+      <div class="hero-body">
+        <div style="text-align: center;">
+          <img src="./assets/comparison.png" style="width: 90%;">
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">
+        <center>Editing</center>
+      </h2>
+      <div class="hero-body">
+        <div style="text-align: center;">
+          <img src="./assets/editing.png" style="width: 80%;">
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+    <section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{zhao2024di-pcg,
+    title={DI-PCG: Diffusion-based Efficient Inverse Procedural Content Generation for High-quality 3D Asset Creation},
+    author={Zhao, Wang and Cao, Yanpei and Xu, Jiale and Dong, Yuejiang and Shan, Ying},
+    journal={arXiv preprint arXiv:},
+    year={2024},
+}</code></pre>
+  </div>
+</section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="content has-text-centered">
+        <a class="icon-link" href="https://arxiv.org/abs/">
+          <i class="fas fa-file-pdf"></i>
+        </a>
+        <a
+          class="icon-link"
+          href="https://github.com/TencentARC/DI-PCG"
+          class="external-link"
+          disabled>
+          <i class="fab fa-github"></i>
+        </a>
+      </div>
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p style="text-align: center">
+              The website template is borrowed from
+              <a href="https://nerfies.github.io/" target="_blank">Nerfies</a
+              >.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>
